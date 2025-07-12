@@ -168,7 +168,11 @@ console.log(proxy.__raw.onesy);              // [{ "@value": "one" }] (original)
 
 ### Internationalization Support
 
-Handle multilingual content with automatic language selection:
+LD provides comprehensive i18n support for both reading and writing multilingual content. i18n functionality is enabled by default with `opts.i18n = true` and can handle both JSON-LD value objects and RDF literal formats.
+
+#### Reading i18n Content
+
+LD automatically selects the appropriate language when accessing properties:
 
 ```javascript
 const resource = {
@@ -189,7 +193,126 @@ console.log(proxy["rdfs:label"]);  // "Organisation" (French version)
 // Change language dynamically
 ld.opts.lang = "es"; 
 console.log(proxy["rdfs:label"]);  // "organización" (Spanish version)
+
+// Access all languages as array
+console.log(proxy["rdfs:label[]"]);  
+// ["organización", '"Organisation"^^fr', '"Organization"^^en']
+// Note: Current language appears first as plain string, others as RDF literals
 ```
+
+#### RDF Literal Format Support
+
+LD also works with RDF i18n literal strings (`"value"^^lang`):
+
+```javascript
+const resource = {
+  "@id": "http://www.w3.org/ns/org#Organization",
+  "rdfs:label": [
+    '"Organisation"^^fr',
+    '"Organization"^^en', 
+    '"Organizzazione"^^it',
+    '"organización"^^es'
+  ]
+};
+
+ld.opts.lang = "it";
+const proxy = ld.proxy(resource);
+
+console.log(proxy["rdfs:label"]);   // "Organizzazione"
+console.log(proxy["rdfs:label[]"]); 
+// ["Organizzazione", '"Organisation"^^fr', '"Organization"^^en', '"organización"^^es']
+```
+
+#### Setting i18n Values
+
+When setting values on i18n properties, LD intelligently handles language management:
+
+```javascript
+const resource = {
+  "@id": "http://www.w3.org/ns/org#Organization",
+  "rdfs:label": [
+    '"Organisation"^^fr',
+    '"Organization"^^en',
+    '"Organizzazione"^^it',
+    '"organización"^^es'
+  ]
+};
+
+ld.opts.lang = "it";
+const proxy = ld.proxy(resource);
+
+// Setting a new value replaces the existing value in current language
+proxy["rdfs:label"] = "Un'altra organizzazione";
+
+console.log(proxy["rdfs:label"]);   // "Un'altra organizzazione"
+console.log(proxy.__raw["rdfs:label"]);
+// ['"Un\'altra organizzazione"^^it', '"Organisation"^^fr', '"Organization"^^en', '"organización"^^es']
+// Note: Old Italian value was replaced, others preserved
+```
+
+#### Format Consistency
+
+LD maintains format consistency when setting values:
+
+```javascript
+// With JSON-LD format input
+const jsonldResource = {
+  "rdfs:label": [
+    { "@language": "en", "@value": "Organization" },
+    { "@language": "fr", "@value": "Organisation" }
+  ]
+};
+
+ld.opts.lang = "it";
+const proxy1 = ld.proxy(jsonldResource);
+proxy1["rdfs:label"] = "Organizzazione";
+
+// Result uses JSON-LD format for consistency
+console.log(proxy1.__raw["rdfs:label"]);
+// [{ "@language": "it", "@value": "Organizzazione" }, { "@language": "en", "@value": "Organization" }, ...]
+
+// With RDF literal format input  
+const rdfResource = {
+  "rdfs:label": ['"Organization"^^en', '"Organisation"^^fr']
+};
+
+const proxy2 = ld.proxy(rdfResource);
+proxy2["rdfs:label"] = "Organizzazione";
+
+// Result uses RDF literal format for consistency
+console.log(proxy2.__raw["rdfs:label"]);
+// ['"Organizzazione"^^it', '"Organization"^^en', '"Organisation"^^fr']
+```
+
+#### Mixed Format Handling
+
+When arrays contain mixed formats, LD prefers RDF literal format:
+
+```javascript
+const mixedResource = {
+  "rdfs:label": [
+    '"Organisation"^^fr',           // RDF literal
+    { "@language": "en", "@value": "Organization" }, // JSON-LD object
+    '"Organizzazione"^^it'          // RDF literal
+  ]
+};
+
+ld.opts.lang = "es";
+const proxy = ld.proxy(mixedResource);
+proxy["rdfs:label"] = "organización";
+
+// Uses RDF literal format since some literals are present
+console.log(proxy.__raw["rdfs:label"]);
+// ['"organización"^^es', '"Organisation"^^fr', { "@language": "en", "@value": "Organization" }, '"Organizzazione"^^it']
+```
+
+#### Language Priority and Ordering
+
+- **Current language first**: Values in the current language always appear first in array access
+- **Plain strings for current language**: Current language values are returned as plain strings
+- **RDF literals for other languages**: Non-current language values appear as RDF literals for clarity
+- **Replacement semantics**: Setting a value replaces any existing value in that language
+- **Preservation**: Values in other languages are preserved unchanged
 
 ### Language Maps
 
