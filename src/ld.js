@@ -425,6 +425,26 @@ class LD {
             else {
               __raw = target[property];
             }
+            
+            // Enhanced i18n support for array access
+            if (this.opts.i18n && this.opts.lang) {
+              const hasI18nContent = __raw.some(value => {
+                if (typeof value === "string") {
+                  return value.match(/^"(.+)"\^\^(.+)$/);
+                } else if (typeof value === "object" && value !== null) {
+                  return value["@value"] !== undefined && value["@language"];
+                }
+                return false;
+              });
+              
+              if (hasI18nContent) {
+                const i18nProcessed = this._processI18nArray(__raw, this.opts.lang);
+                // Don't proxy the i18n processed array to preserve RDF literal strings
+                target[property] = i18nProcessed;
+                return i18nProcessed;
+              }
+            }
+            
             // how can we return a thing that looks flattened,
             // but when mutated affects the original object?
             const flattened = __raw.map(_v => flatten(_v));
@@ -1316,6 +1336,70 @@ class LD {
         }
       }
     }
+  }
+
+  /**
+   * Process an array of values for enhanced i18n support with language prioritization.
+   * Current language values appear first as plain strings, other language values 
+   * appear as RDF i18n literals ("value"^^lang). Supports both input formats:
+   * RDF literals and JSON-LD @value/@language objects.
+   * 
+   * @param {Array} values - Array of values that may include i18n content
+   * @param {string} currentLang - Current language code (e.g., "en", "it")
+   * @returns {Array} - Processed array with current language first, others as RDF literals
+   * @private
+   */
+  _processI18nArray(values, currentLang) {
+    check(values, Array);
+    check(currentLang, String);
+    
+    if (!values || values.length === 0) {
+      return [];
+    }
+    
+    const currentLangValues = [];
+    const otherLangValues = [];
+    const nonI18nValues = [];
+    
+    for (const value of values) {
+      if (typeof value === "string") {
+        // Check if it's an RDF i18n literal format: "value"^^lang
+        const rdfMatch = value.match(/^"(.+)"\^\^(.+)$/);
+        if (rdfMatch) {
+          const [, literalValue, lang] = rdfMatch;
+          if (lang === currentLang) {
+            // Current language - add as plain string
+            currentLangValues.push(literalValue);
+          } else {
+            // Other language - keep as RDF literal
+            otherLangValues.push(value);
+          }
+        } else {
+          // Plain string - assume current language or language-neutral
+          currentLangValues.push(value);
+        }
+      } else if (typeof value === "object" && value !== null) {
+        // Check if it's a JSON-LD @value/@language object
+        if (value["@value"] !== undefined && value["@language"]) {
+          if (value["@language"] === currentLang) {
+            // Current language - add as plain string
+            currentLangValues.push(value["@value"]);
+          } else {
+            // Other language - convert to RDF literal format
+            otherLangValues.push(`"${value["@value"]}"^^${value["@language"]}`);
+          }
+        } else {
+          // Non-i18n object - keep as is
+          nonI18nValues.push(value);
+        }
+      } else {
+        // Non-string, non-object value - keep as is
+        nonI18nValues.push(value);
+      }
+    }
+    
+    // Return with current language first, then other languages, then non-i18n
+    return [...currentLangValues, ...otherLangValues, ...nonI18nValues];
   }
 
   /**
