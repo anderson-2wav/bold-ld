@@ -544,6 +544,61 @@ class LD {
                   // current value is a plain array.
                 }
               }
+              
+              // Handle i18n behavior when setting values
+              if (this.opts.i18n && this.opts.lang && typeof value === "string") {
+                // Check if the existing array contains i18n content
+                const hasI18nContent = rawTargetValue.some(item => {
+                  if (typeof item === "string") {
+                    return item.match(/^"(.+)"\^\^(.+)$/);
+                  } else if (typeof item === "object" && item !== null) {
+                    return item["@value"] !== undefined && item["@language"];
+                  }
+                  return false;
+                });
+                
+                if (hasI18nContent) {
+                  // Determine the format to use based on existing content
+                  // Prefer RDF literal format if any are present, otherwise use JSON-LD format
+                  const hasRdfLiterals = rawTargetValue.some(item => 
+                    typeof item === "string" && item.match(/^"(.+)"\^\^(.+)$/)
+                  );
+                  
+                  if (hasRdfLiterals) {
+                    // Use RDF literal format for consistency
+                    _v = `"${value}"^^${this.opts.lang}`;
+                  } else {
+                    // Use JSON-LD format for consistency
+                    _v = { "@value": value, "@language": this.opts.lang };
+                  }
+                  
+                  // Look for existing value in current language and replace it
+                  const currentLangPattern = new RegExp(`^"(.*)"\\^\\^${this.opts.lang}$`);
+                  let replacedExisting = false;
+                  
+                  for (let i = 0; i < targetValue.length; i++) {
+                    const item = targetValue[i];
+                    if (typeof item === "string" && item.match(currentLangPattern)) {
+                      // Replace existing RDF literal in current language
+                      targetValue[i] = _v;
+                      replacedExisting = true;
+                      break;
+                    } else if (typeof item === "object" && item !== null && 
+                               item["@language"] === this.opts.lang) {
+                      // Replace existing JSON-LD value object in current language
+                      targetValue[i] = _v;
+                      replacedExisting = true;
+                      break;
+                    }
+                  }
+                  
+                  if (!replacedExisting) {
+                    // Prepend new value for current language
+                    targetValue.unshift(_v);
+                  }
+                  return true;
+                }
+              }
               // target property is an array length 1, replace it unless isArrayProperty
               if (targetValue.length === 1) {
                 // return Reflect.set(_target,property,[_v]);
