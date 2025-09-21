@@ -431,7 +431,8 @@ class LD {
               const hasI18nContent = __raw.some(value => {
                 if (typeof value === "string") {
                   return value.match(/^"(.+)"\^\^(.+)$/);
-                } else if (typeof value === "object" && value !== null) {
+                }
+                else if (typeof value === "object" && value !== null) {
                   return value["@value"] !== undefined && value["@language"];
                 }
                 return false;
@@ -551,7 +552,8 @@ class LD {
                 const hasI18nContent = rawTargetValue.some(item => {
                   if (typeof item === "string") {
                     return item.match(/^"(.+)"\^\^(.+)$/);
-                  } else if (typeof item === "object" && item !== null) {
+                  }
+ else if (typeof item === "object" && item !== null) {
                     return item["@value"] !== undefined && item["@language"];
                   }
                   return false;
@@ -567,7 +569,8 @@ class LD {
                   if (hasRdfLiterals) {
                     // Use RDF literal format for consistency
                     _v = `"${value}"^^${this.opts.lang}`;
-                  } else {
+                  }
+ else {
                     // Use JSON-LD format for consistency
                     _v = { "@value": value, "@language": this.opts.lang };
                   }
@@ -583,7 +586,8 @@ class LD {
                       targetValue[i] = _v;
                       replacedExisting = true;
                       break;
-                    } else if (typeof item === "object" && item !== null &&
+                    }
+ else if (typeof item === "object" && item !== null &&
                                item["@language"] === this.opts.lang) {
                       // Replace existing JSON-LD value object in current language
                       targetValue[i] = _v;
@@ -758,14 +762,14 @@ class LD {
     check(resource,Match.OneOf(Object,Array));
     check(context, Match.Optional(Object));
     check(opts,Object);
-    debugger;
     context = context ?? this.opts.context;
 
     // Handle single resource or array of resources
     let inputForExpansion;
     if (Array.isArray(resource)) {
       inputForExpansion = resource;
-    } else {
+    }
+ else {
       // Single resource - could be a @graph document or individual resource
       inputForExpansion = resource;
     }
@@ -784,7 +788,8 @@ class LD {
         }
         _resource["@context"] = context;
       }
-    } else {
+    }
+ else {
       // Single resource/document
       if (_input._id && _input["@id"]) {
         delete _input["@id"];
@@ -1452,29 +1457,35 @@ class LD {
           if (lang === currentLang) {
             // Current language - add as plain string
             currentLangValues.push(literalValue);
-          } else {
+          }
+ else {
             // Other language - keep as RDF literal
             otherLangValues.push(value);
           }
-        } else {
+        }
+ else {
           // Plain string - assume current language or language-neutral
           currentLangValues.push(value);
         }
-      } else if (typeof value === "object" && value !== null) {
+      }
+ else if (typeof value === "object" && value !== null) {
         // Check if it's a JSON-LD @value/@language object
         if (value["@value"] !== undefined && value["@language"]) {
           if (value["@language"] === currentLang) {
             // Current language - add as plain string
             currentLangValues.push(value["@value"]);
-          } else {
+          }
+ else {
             // Other language - convert to RDF literal format
             otherLangValues.push(`"${value["@value"]}"^^${value["@language"]}`);
           }
-        } else {
+        }
+ else {
           // Non-i18n object - keep as is
           nonI18nValues.push(value);
         }
-      } else {
+      }
+ else {
         // Non-string, non-object value - keep as is
         nonI18nValues.push(value);
       }
