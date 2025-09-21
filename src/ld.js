@@ -425,7 +425,7 @@ class LD {
             else {
               __raw = target[property];
             }
-            
+
             // Enhanced i18n support for array access
             if (this.opts.i18n && this.opts.lang) {
               const hasI18nContent = __raw.some(value => {
@@ -436,7 +436,7 @@ class LD {
                 }
                 return false;
               });
-              
+
               if (hasI18nContent) {
                 const i18nProcessed = this._processI18nArray(__raw, this.opts.lang);
                 // Don't proxy the i18n processed array to preserve RDF literal strings
@@ -444,7 +444,7 @@ class LD {
                 return i18nProcessed;
               }
             }
-            
+
             // how can we return a thing that looks flattened,
             // but when mutated affects the original object?
             const flattened = __raw.map(_v => flatten(_v));
@@ -544,7 +544,7 @@ class LD {
                   // current value is a plain array.
                 }
               }
-              
+
               // Handle i18n behavior when setting values
               if (this.opts.i18n && this.opts.lang && typeof value === "string") {
                 // Check if the existing array contains i18n content
@@ -556,14 +556,14 @@ class LD {
                   }
                   return false;
                 });
-                
+
                 if (hasI18nContent) {
                   // Determine the format to use based on existing content
                   // Prefer RDF literal format if any are present, otherwise use JSON-LD format
-                  const hasRdfLiterals = rawTargetValue.some(item => 
+                  const hasRdfLiterals = rawTargetValue.some(item =>
                     typeof item === "string" && item.match(/^"(.+)"\^\^(.+)$/)
                   );
-                  
+
                   if (hasRdfLiterals) {
                     // Use RDF literal format for consistency
                     _v = `"${value}"^^${this.opts.lang}`;
@@ -571,11 +571,11 @@ class LD {
                     // Use JSON-LD format for consistency
                     _v = { "@value": value, "@language": this.opts.lang };
                   }
-                  
+
                   // Look for existing value in current language and replace it
                   const currentLangPattern = new RegExp(`^"(.*)"\\^\\^${this.opts.lang}$`);
                   let replacedExisting = false;
-                  
+
                   for (let i = 0; i < targetValue.length; i++) {
                     const item = targetValue[i];
                     if (typeof item === "string" && item.match(currentLangPattern)) {
@@ -583,7 +583,7 @@ class LD {
                       targetValue[i] = _v;
                       replacedExisting = true;
                       break;
-                    } else if (typeof item === "object" && item !== null && 
+                    } else if (typeof item === "object" && item !== null &&
                                item["@language"] === this.opts.lang) {
                       // Replace existing JSON-LD value object in current language
                       targetValue[i] = _v;
@@ -591,7 +591,7 @@ class LD {
                       break;
                     }
                   }
-                  
+
                   if (!replacedExisting) {
                     // Prepend new value for current language
                     targetValue.unshift(_v);
@@ -758,24 +758,51 @@ class LD {
     check(resource,Match.OneOf(Object,Array));
     check(context, Match.Optional(Object));
     check(opts,Object);
+    debugger;
     context = context ?? this.opts.context;
-    const resources = Array.isArray(resource) ? resource : [resource];
-    let _resources = _.cloneDeep(this.unproxy(resources));
-    for (const _resource of _resources) {
-      if (_resource._id && _resource["@id"]) {
-        // cant have both, it confuses jsonld
-        delete _resource["@id"];
-      }
-      if (_resource["@context"]) {
-        _.merge(context,_resource["@context"]);
-      }
-      _resource["@context"] = context;
-    }
-    if (opts.flatten) {
-      _resources = await jsonld.flatten(_resources);
+
+    // Handle single resource or array of resources
+    let inputForExpansion;
+    if (Array.isArray(resource)) {
+      inputForExpansion = resource;
+    } else {
+      // Single resource - could be a @graph document or individual resource
+      inputForExpansion = resource;
     }
 
-    const expanded = await jsonld.expand(_resources);
+    let _input = _.cloneDeep(this.unproxy(inputForExpansion));
+
+    // If it's an array, process each resource
+    if (Array.isArray(_input)) {
+      for (const _resource of _input) {
+        if (_resource._id && _resource["@id"]) {
+          // cant have both, it confuses jsonld
+          delete _resource["@id"];
+        }
+        if (_resource["@context"]) {
+          _.merge(context,_resource["@context"]);
+        }
+        _resource["@context"] = context;
+      }
+    } else {
+      // Single resource/document
+      if (_input._id && _input["@id"]) {
+        delete _input["@id"];
+      }
+      if (_input["@context"]) {
+        _.merge(context, _input["@context"]);
+      }
+      _input["@context"] = context;
+    }
+
+    if (opts.flatten) {
+      _input = await jsonld.flatten(_input);
+    }
+
+    const expanded = await jsonld.expand(_input);
+
+    // jsonld.expand returns the correct format - an array of expanded resources
+    // No need to wrap or unwrap - just return what jsonld gives us
     return expanded;
   }
 
@@ -1395,10 +1422,10 @@ class LD {
 
   /**
    * Process an array of values for enhanced i18n support with language prioritization.
-   * Current language values appear first as plain strings, other language values 
+   * Current language values appear first as plain strings, other language values
    * appear as RDF i18n literals ("value"^^lang). Supports both input formats:
    * RDF literals and JSON-LD @value/@language objects.
-   * 
+   *
    * @param {Array} values - Array of values that may include i18n content
    * @param {string} currentLang - Current language code (e.g., "en", "it")
    * @returns {Array} - Processed array with current language first, others as RDF literals
@@ -1407,15 +1434,15 @@ class LD {
   _processI18nArray(values, currentLang) {
     check(values, Array);
     check(currentLang, String);
-    
+
     if (!values || values.length === 0) {
       return [];
     }
-    
+
     const currentLangValues = [];
     const otherLangValues = [];
     const nonI18nValues = [];
-    
+
     for (const value of values) {
       if (typeof value === "string") {
         // Check if it's an RDF i18n literal format: "value"^^lang
@@ -1452,7 +1479,7 @@ class LD {
         nonI18nValues.push(value);
       }
     }
-    
+
     // Return with current language first, then other languages, then non-i18n
     return [...currentLangValues, ...otherLangValues, ...nonI18nValues];
   }
