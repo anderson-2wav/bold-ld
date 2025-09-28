@@ -1526,6 +1526,20 @@ class LD {
   }
 
   /**
+   * Convert a string to kebab-case (dash-separated lowercase)
+   * @param {string} str - The string to convert
+   * @returns {string} The kebab-case string
+   */
+  kebabCase(str) {
+    check(str, String);
+    return str
+      .replace(/([a-z])([A-Z])/g, "$1-$2") // Add dash between camelCase words
+      .replace(/[\s_]+/g, "-") // Replace spaces and underscores with dashes
+      .replace(/[^\w-]/g, "") // Remove non-word characters except dashes
+      .toLowerCase(); // Convert to lowercase
+  }
+
+  /**
    * Get module version
    * @returns {string} The module version
    */
