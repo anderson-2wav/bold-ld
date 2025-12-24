@@ -353,6 +353,7 @@ const DEFAULT_CONTEXT = {
   "xsd" : "http://www.w3.org/2001/XMLSchema#",
   "foaf" : "http://xmlns.com/foaf/0.1/",
   "dc" : "http://purl.org/dc/elements/1.1/",
+  "dcterms": "http://purl.org/dc/terms/",
   "org" : "http://www.w3.org/ns/org#",
   "uo" : "http://purl.obolibrary.org/obo/uo.owl",
   "obo" : "http://purl.obolibrary.org/obo/",
@@ -372,7 +373,6 @@ const DEFAULT_CONTEXT = {
   "dcam": "http://purl.org/dc/dcam/",
   "dcat": "http://www.w3.org/ns/dcat#",
   "dcmitype": "http://purl.org/dc/dcmitype/",
-  "dcterms": "http://purl.org/dc/terms/",
   "doap": "http://usefulinc.com/ns/doap#",
   "odrl": "http://www.w3.org/ns/odrl/2/",
   "prof": "http://www.w3.org/ns/dx/prof/",
@@ -391,40 +391,7 @@ const DEFAULT_CONTEXT = {
   "rdfs:domain" : {
     "@type" : "@id"
   },
-  "ctb:importance" : {
-    "@type" : "http://www.w3.org/2001/XMLSchema#integer"
-  },
-  "ctb:when" : {
-    "@type" : "http://www.w3.org/2001/XMLSchema#dateTime"
-  },
   "rdfs:comment" : {
-    "@type" : "http://www.w3.org/2001/XMLSchema#string"
-  },
-  "ctb:confidence" : {
-    "@type" : "http://www.w3.org/2001/XMLSchema#string"
-  },
-  "ctb:hasBeginning" : {
-    "@type" : "http://www.w3.org/2001/XMLSchema#dateTime"
-  },
-  "ctb:hasCertification" : {
-    "@type" : "@id"
-  },
-  "ctb:hasEnd" : {
-    "@type" : "http://www.w3.org/2001/XMLSchema#dateTime"
-  },
-  "ctb:hasKnowledge" : {
-    "@type" : "@id"
-  },
-  "ctb:hasPosition" : {
-    "@type" : "@id"
-  },
-  "ctb:hasSkill" : {
-    "@type" : "@id"
-  },
-  "ctb:hasTask" : {
-    "@type" : "@id"
-  },
-  "ctb:jobTitle" : {
     "@type" : "http://www.w3.org/2001/XMLSchema#string"
   },
   "org:memberDuring" : {
@@ -448,9 +415,6 @@ const DEFAULT_CONTEXT = {
   "dc:description" : {
     "@type" : "http://www.w3.org/2001/XMLSchema#string"
   },
-  "ctb:collection" : {
-    "@type" : "http://www.w3.org/2001/XMLSchema#string"
-  },
   "owl:sameAs" : {
     "@type" : "@id"
   },
@@ -462,21 +426,6 @@ const DEFAULT_CONTEXT = {
   },
   "owl:maxCardinality": {
     "@type": "http://www.w3.org/2001/XMLSchema#integer"
-  },
-  "ctb:completedDate" : {
-    "@type" : "http://www.w3.org/2001/XMLSchema#dateTime"
-  },
-  "ctb:dueDate" : {
-    "@type" : "http://www.w3.org/2001/XMLSchema#dateTime"
-  },
-  "ctb:projectStatus" : {
-    "@type" : "http://www.w3.org/2001/XMLSchema#string"
-  },
-  "ctb:severity" : {
-    "@type" : "http://www.w3.org/2001/XMLSchema#string"
-  },
-  "ctb:startDate" : {
-    "@type" : "http://www.w3.org/2001/XMLSchema#dateTime"
   },
   "schema:eligibleRegion" : {
 
@@ -491,42 +440,6 @@ const DEFAULT_CONTEXT = {
     "@type" : "@id"
   },
   "wot:src_assurance" : {
-    "@type" : "@id"
-  },
-  "nice:description" : {
-
-  },
-  "nice:inCategory" : {
-    "@type" : "@id"
-  },
-  "nice:inSpecialtyArea" : {
-    "@type" : "@id"
-  },
-  "nice:name" : {
-
-  },
-  "nice:abbrev" : {
-
-  },
-  "nice:requiresAbility" : {
-    "@type" : "@id"
-  },
-  "nice:requiresKnowledge" : {
-    "@type" : "@id"
-  },
-  "nice:requiresSkill" : {
-    "@type" : "@id"
-  },
-  "nice:requiresTask" : {
-    "@type" : "@id"
-  },
-  "nice:title" : {
-
-  },
-  "nice:competencyType" : {
-    "@type" : "@id"
-  },
-  "ctl:related" : {
     "@type" : "@id"
   }
 };
