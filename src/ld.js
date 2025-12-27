@@ -116,7 +116,7 @@ import { check, Match } from "./lib/check.js";
  assert.equal(p.__raw.plain,"World.");
  // set a plain property that doesn't exit
  p.plan = "9";
- assert.equal(p.__raw.plain,"9");
+ assert.equal(p.__raw.plan,"9");
  // set a plain property on a plain array
  p.plains = "Before";
  assert.deepEqual(p.__raw.plains,["Before","Hello","World"]);
