@@ -1547,6 +1547,99 @@ class LD {
     return this.version;
   }
 
+  /**
+   * Convert MongoDB document(s) _id to valid JSON-LD @id.
+   *
+   * BOLD stores @id as _id in MongoDB.
+   *
+   * When the JSON-LD context includes `"_id": "@id"`, compaction converts ALL @id to _id,
+   * including nested node references. This method reverses that conversion for export.
+   *
+   * @param {object|Array} input - Document or array of documents to convert
+   * @param {object} [opts] - Options
+   * @param {boolean} [opts.deep=true] - Recursively process nested objects
+   * @returns {object|Array} Converted document(s) with @id instead of _id
+   *
+   * @example
+   * // Convert a single resource
+   * const jsonld = LD.mongoToJsonld({
+   *   _id: "foaf:Person",
+   *   "rdfs:isDefinedBy": { _id: "http://xmlns.com/foaf/0.1/" }
+   * });
+   * // Result: { "@id": "foaf:Person", "rdfs:isDefinedBy": { "@id": "http://xmlns.com/foaf/0.1/" } }
+   */
+  static mongoToJsonld(input, opts = {}) {
+    const deep = opts.deep !== false;
+
+    function convertObject(obj) {
+      if (obj === null || typeof obj !== "object") {
+        return obj;
+      }
+
+      if (Array.isArray(obj)) {
+        return obj.map(item => convertObject(item));
+      }
+
+      const result = {};
+      for (const [key, value] of Object.entries(obj)) {
+        // Convert _id to @id
+        const newKey = key === "_id" ? "@id" : key;
+
+        // Recursively process nested objects if deep=true
+        if (deep && value !== null && typeof value === "object") {
+          result[newKey] = convertObject(value);
+        }
+        else {
+          result[newKey] = value;
+        }
+      }
+      return result;
+    }
+
+    return convertObject(input);
+  }
+
+  /**
+   * Convert JSON-LD document(s) to MongoDB-safe format by recursively converting @id to _id.
+   *
+   * This is the inverse of mongoToJsonld(). Use this before storing JSON-LD in MongoDB.
+   *
+   * @param {object|Array} input - Document or array of documents to convert
+   * @param {object} [opts] - Options
+   * @param {boolean} [opts.deep=true] - Recursively process nested objects
+   * @returns {object|Array} Converted document(s) with _id instead of @id
+   */
+  static jsonldToMongo(input, opts = {}) {
+    const deep = opts.deep !== false;
+
+    function convertObject(obj) {
+      if (obj === null || typeof obj !== "object") {
+        return obj;
+      }
+
+      if (Array.isArray(obj)) {
+        return obj.map(item => convertObject(item));
+      }
+
+      const result = {};
+      for (const [key, value] of Object.entries(obj)) {
+        // Convert @id to _id
+        const newKey = key === "@id" ? "_id" : key;
+
+        // Recursively process nested objects if deep=true
+        if (deep && value !== null && typeof value === "object") {
+          result[newKey] = convertObject(value);
+        }
+        else {
+          result[newKey] = value;
+        }
+      }
+      return result;
+    }
+
+    return convertObject(input);
+  }
+
 }
 
 // Export the class as the default export
