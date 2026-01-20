@@ -1,15 +1,25 @@
 # LD
 
-The LD module provides utilities to simplify JSON-LD document processing within JavaScript/TypeScript applications. It normalizes JSON-LD documents so applications don't need to handle complex variations like array properties, @value fields, and internationalization strings.
+The LD module simplifies JSON-LD document processing within JavaScript/TypeScript applications. It normalizes JSON-LD documents so applications don't need to handle complex variations like array properties, @value fields, and internationalization strings.
 
-LD is a component of the BOLD stack (Bridge Ontology Linked Data). One of LD's primary functions in BOLD is
+## License
+
+LD is licensed under the **Mozilla Public License 2.0 (MPL-2.0)**.
+
+This means:
+- If you modify Ontologize source files, share those changes
+- Your application code that uses Ontologize can remain proprietary
+- See [LICENSE](./LICENSE) for full terms
+
+## Overview
+
+LD is a component of the BOLD stack (Bridge Ontology Linked Data). One of LD's primary functions is
 to **compact** JSON-LD documents into BOLD _resources_. BOLD resources are valid JSON-LD, fully OWL compatible, and suitable for persistence in MongoDB. To that end:
-* **@id** is converted to **_id_** and used as MongoDB _id strings (not ObjectId).
-* **@type** is always a @list array, typically sorted from most to least specific, according to the application.
+* **@id** is converted to **_id_** and used as MongoDB _id strings (BOLD does not use MongoDB's ObjectId type).
+* **@type** is always a @set array, typically sorted from most to least specific, according to the application.
 * **rdf:type** is converted to @type in the compaction process.
-* JSON-LD properties and all RDF predicates are compacted to QNames and used as keys in MongoDB documents.
-  Since MongoDB document keys cannot contain ".", LD ensures that all keys are compacted, or else error behavior
-  is effected (or unsafe keys may be simply dropped).
+* JSON-LD properties and all RDF predicates are compacted to QNames and used as property keys in MongoDB documents.
+  Since MongoDB document keys cannot contain ".", LD ensures that all keys are compacted and MongoDB compatible.
 * The array-ness of properties may be determined by an optional **isArrayPropertyFn** callback, as well as by
   @container attributes in the JSON-LD. In BOLD, property array-ness may be determined by RDF containers or from custom ontology properties. 
 
@@ -20,7 +30,8 @@ troublesome for practical programming with open-world data.
   or else return the first element if it is an array. Consider an application that generally expects a name property
   to be a single string value. Ontology reasoning may infer new name values from open-world data. Ld~Proxy will continue 
   to return a single string value, but the full array is still accessible if desired. 
-* _@value and @id objects are automatically flattened._ Consider a JSON-LD document with the property:
+* _@value and @id objects are automatically flattened._ 
+  * Consider a JSON-LD document with the property:
 ```json
   "example:names": [
     {
@@ -53,7 +64,7 @@ troublesome for practical programming with open-world data.
       }
     ]
 ```
-  * `document["rdfs:label"]` will return the correct string for the current selected language.
+  * `document["rdfs:label"]` will return the correct string for the currently selected language.
 * LD~Proxy properties are also settable and iterable.
 
 Other packages in the BOLD stack will become available in the future, to help with many other issues common to using 
@@ -141,7 +152,7 @@ const expanded = await ld.expand(compact, context);
 
 ### Smart Proxy Objects
 
-Create proxy objects that normalize complex JSON-LD structures:
+LD Proxies normalize complex JSON-LD structures:
 
 ```javascript
 const doc = {
@@ -202,7 +213,7 @@ console.log(proxy["rdfs:label[]"]);
 
 #### RDF Literal Format Support
 
-LD also works with RDF i18n literal strings (`"value"^^lang`):
+LD works with RDF i18n literals (`"value"^^lang`):
 
 ```javascript
 const resource = {
@@ -271,14 +282,13 @@ proxy1["rdfs:label"] = "Organizzazione";
 console.log(proxy1.__raw["rdfs:label"]);
 // [{ "@language": "it", "@value": "Organizzazione" }, { "@language": "en", "@value": "Organization" }, ...]
 
-// With RDF literal format input  
+// i18n inputs convert to i18n literal format  
 const rdfResource = {
   "rdfs:label": ['"Organization"^^en', '"Organisation"^^fr']
 };
-
 const proxy2 = ld.proxy(rdfResource);
+ld.opts.lang = "it";
 proxy2["rdfs:label"] = "Organizzazione";
-
 // Result uses RDF literal format for consistency
 console.log(proxy2.__raw["rdfs:label"]);
 // ['"Organizzazione"^^it', '"Organization"^^en', '"Organisation"^^fr']
@@ -339,6 +349,7 @@ const compacted = await ld.compact(resource, resource["@context"], {
 });
 
 // Language map flattened to i18n strings:
+// ld.opts.lang = "en";
 // compacted.label = ["The Queen", "\"Die Königin\"^^de", "\"Ihre Majestät\"^^de"]
 ```
 
