@@ -926,7 +926,6 @@ class LD {
 
     let compacted = await jsonld.compact(_resources,context);
 
-    // new mystery problem, sometimes 2do:schema.properties keys get expanded during compact. wat?
     const reKeyed = this.compactKeys(compacted,context, {recursive:true});
     // Ld.compactKeys always returns an array, but maybe not what is wanted.
     if (_.isArray(compacted)) {
