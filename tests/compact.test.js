@@ -365,8 +365,6 @@ const DEFAULT_CONTEXT = {
   "org" : "http://www.w3.org/ns/org#",
   "uo" : "http://purl.obolibrary.org/obo/uo.owl",
   "obo" : "http://purl.obolibrary.org/obo/",
-  "2wav" : "https://ontology.2wav.com#",
-  "2do" : "https://ontology.2wav.com/display#",
   "ctb" : "https://ontology.2wav.com/bridge#",
   "ctl" : "https://ontology.2wav.com/800-53#",
   "ctl5" : "https://ontology.2wav.com/800-53/rev5#",
@@ -416,9 +414,6 @@ const DEFAULT_CONTEXT = {
   },
   "rdfs:subClassOf" : {
     "@type" : "@id"
-  },
-  "2do:schema" : {
-
   },
   "dc:description" : {
     "@type" : "http://www.w3.org/2001/XMLSchema#string"

@@ -225,7 +225,7 @@ class LD {
     this.opts.lang = this.opts.lang ?? "en";
     this.opts.debug = this.opts.debug ?? false;
     this.opts.typeUri = this.opts.typeUri ?? "rdf:type";
-    this.opts.sortTypesFn = this.opts.sortTypesFn ?? ((types, context) => types.sort());
+    this.opts.sortTypesFn = this.opts.sortTypesFn ?? null; // ((types, context) => types.sort());
     this.opts.cleanupResourceFn = this.opts.cleanupResourceFn ?? (() => {});
     this.opts.isArrayPropertyFn = this.opts.isArrayPropertyFn ?? this._defaultIsArrayProperty.bind(this);
   }
@@ -926,7 +926,6 @@ class LD {
 
     let compacted = await jsonld.compact(_resources,context);
 
-    // new mystery problem, sometimes 2do:schema.properties keys get expanded during compact. wat?
     const reKeyed = this.compactKeys(compacted,context, {recursive:true});
     // Ld.compactKeys always returns an array, but maybe not what is wanted.
     if (_.isArray(compacted)) {
@@ -1050,8 +1049,12 @@ class LD {
           const $ = _compacted;
           // eslint-disable-next-line no-eval
           const types = eval(`${path}`);
-          if (Array.isArray(types)) {
-            opts.sortTypesFn(types,context);
+          if (Array.isArray(types) && types.length > 1) {
+            const sortedTypes = await opts.sortTypesFn(types,context);
+            console.log("orig types",types);
+            console.log("sortedTypes",sortedTypes);
+            const _path = path.substring(1); // cut off the $
+            _.set($,_path,sortedTypes);
           }
         }
       }
