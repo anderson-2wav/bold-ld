@@ -226,7 +226,7 @@ describe("LD.compact", function () {
     let sortCalled = false;
     const customSortFn = (types, context) => {
       sortCalled = true;
-      types.sort();
+      return types.sort();
     };
 
 
