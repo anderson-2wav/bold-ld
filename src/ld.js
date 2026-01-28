@@ -1051,8 +1051,8 @@ class LD {
           const types = eval(`${path}`);
           if (Array.isArray(types) && types.length > 1) {
             const sortedTypes = await opts.sortTypesFn(types,context);
-            console.log("orig types",types);
-            console.log("sortedTypes",sortedTypes);
+            // console.log("orig types",types);
+            // console.log("sortedTypes",sortedTypes);
             const _path = path.substring(1); // cut off the $
             _.set($,_path,sortedTypes);
           }
