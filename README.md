@@ -1,6 +1,8 @@
 # LD
 
-The LD module simplifies JSON-LD document processing within JavaScript/TypeScript applications. It normalizes JSON-LD documents so applications don't need to handle complex variations like array properties, @value fields, and internationalization strings.
+The LD module is a core component of the BOLD stack (Bridge Ontology Linked Data). LD simplifies JSON-LD document processing within JavaScript/TypeScript applications. It normalizes JSON-LD documents so applications don't need to handle complex variations like array properties, @value fields, and internationalization.
+
+LD is based on [jsonld.js](https://github.com/digitalbazaar/jsonld.js).
 
 ## License
 
@@ -13,74 +15,58 @@ This means:
 
 ## Overview
 
-LD is a component of the BOLD stack (Bridge Ontology Linked Data). One of LD's primary functions is
-to **compact** JSON-LD documents into BOLD _resources_. BOLD resources are valid JSON-LD, fully OWL compatible, and suitable for persistence in MongoDB. To that end:
+One of LD's primary functions is to **compact** JSON-LD documents into normalized _resources_ suitable for persistence and practical javascript/typescript programming in BOLD. To that end:
 * **@id** is converted to **_id_** and used as MongoDB _id strings (BOLD does not use MongoDB's ObjectId type).
 * **@type** is always a @set array, typically sorted from most to least specific, according to the application.
 * **rdf:type** is converted to @type in the compaction process.
-* JSON-LD properties and all RDF predicates are compacted to QNames and used as property keys in MongoDB documents.
-  Since MongoDB document keys cannot contain ".", LD ensures that all keys are compacted and MongoDB compatible.
-* The array-ness of properties may be determined by an optional **isArrayPropertyFn** callback, as well as by
-  @container attributes in the JSON-LD. In BOLD, property array-ness may be determined by RDF containers or from custom ontology properties. 
+* JSON-LD properties and all RDF predicates are compacted to QNames and used as property keys in MongoDB documents. Since MongoDB document keys cannot contain ".", LD ensures that all keys are compacted and MongoDB compatible.
+* The array-ness of properties is enforced, by @container attributes in the JSON-LD context, and also by an optional **isArrayPropertyFn** callback. This callback is used in BOLD to indicate property array-ness from custom ontology properties. 
 
-LD can produce proxy objects (LD~Proxy) which help smooth over some of the inconsistencies that are 
-troublesome for practical programming with open-world data. 
-* _Undeclared Arrays are treated as single values._ 
+LD also provides proxy objects (LD~Proxy) which hide troublesome complexities that can arise in JSON-LD documents: 
+* _Undeclared arrays appear as single values by default._ (All values can be accessed if explicitly requested.)  
   Dereferencing a property which is not declared to be an array will return the value if it is a single value 
-  or else return the first element if it is an array. Consider an application that generally expects a name property
-  to be a single string value. Ontology reasoning may infer new name values from open-world data. Ld~Proxy will continue 
-  to return a single string value, but the full array is still accessible if desired. 
-* _@value and @id objects are automatically flattened._ 
+  or else return the first element if it is an array. Consider an application that generally expects a name property to be a single string value. Ontology reasoning may infer new name values from open-world data. Ld~Proxy will continue to return a single string value, but the full array is still accessible if desired. 
+* _@value and @id objects appear flattened._ 
   * Consider a JSON-LD document with the property:
-```json
+```js
+const documentProxu = ld.proxy({
   "example:names": [
-    {
-      "@value": "John Doe"
-    },
-    {
-      "@value": "Johnny"
-    }
-  ],
-```
-  * `document["example:names"]` will return `["John Doe", "Johnny"]`, hiding the complex object underneath.
-* _Automatic i18n string selection._ Consider a document with several i18n options for `rdfs:label`:
-```json
-    "rdfs:label": [
       {
-        "@language": "fr",
-        "@value": "Organisation"
+        "@value": "John Doe"
       },
       {
-        "@language": "en",
-        "@value": "Organization"
-      },
-      {
-        "@language": "it",
-        "@value": "Organizzazione"
-      },
-      {
-        "@language": "es",
-        "@value": "organización"
+        "@value": "Johnny"
       }
     ]
+  });
+console.log(documentProxu["example:names"]); // ["John Doe", "Johnny"]
 ```
-  * `document["rdfs:label"]` will return the correct string for the currently selected language.
+* _Automatic i18n string selection._ Consider a document with several i18n options for `rdfs:label`:
+```js
+const documentProxy = ld.proxy({
+  "rdfs:label": [
+    {
+      "@language": "fr",
+      "@value": "Organisation"
+    },
+    {
+      "@language": "en",
+      "@value": "Organization"
+    },
+    {
+      "@language": "it",
+      "@value": "Organizzazione"
+    },
+    {
+      "@language": "es",
+      "@value": "organización"
+    }
+  ]
+});
+ld.opts.lang = "it";
+console.log(document["rdfs:label"]); // "Organizzazione" 
+```
 * LD~Proxy properties are also settable and iterable.
-
-Other packages in the BOLD stack will become available in the future, to help with many other issues common to using 
-ontology data in web applications:
-* importing JSON-LD documents into BOLD MongoDB collections
-* traversing class hierarchies to determine specificity order
-* distinguishing TBox and Abox resources
-* generating a global @context from all resources and ontologies in the application
-* accessing the complete ontology definition of a class or property
-* many user interface helpers
-  * find a suitable display name for any resource
-  * generate suitable display value for a resource+property
-  * converting xsd literals into native JS values
-  * getting colors and icons for a resource by type
-* _reification_ meta-data about any resource+property+value assertion in the db
-* OWL-DL ontology reasoning with inferences automatically applied to the db, with meta-data. 
 
 ## Usage
 
