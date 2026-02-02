@@ -147,7 +147,7 @@ import { check, Match } from "./lib/check.js";
  * the first string with an i18n key matching {@link Ld~opts.lang} will be returned.
  *
  * The i18n key may be an RDF Literal with a language tag
- * e.g. `"Rappresenta una collezione"^^it`,
+ * e.g. `"Rappresenta una collezione"@it`,
  * or a JSON-LD value object with a @language key e.g.
  ```
  { @value: "Rappresenta una collezione", @language: "it" }
@@ -433,7 +433,7 @@ class LD {
             if (this.opts.i18n && this.opts.lang) {
               const hasI18nContent = __raw.some(value => {
                 if (typeof value === "string") {
-                  return value.match(/^"(.+)"\^\^(.+)$/);
+                  return value.match(/^"(.+)"@(.+)$/);
                 }
                 else if (typeof value === "object" && value !== null) {
                   return value["@value"] !== undefined && value["@language"];
@@ -554,7 +554,7 @@ class LD {
                 // Check if the existing array contains i18n content
                 const hasI18nContent = rawTargetValue.some(item => {
                   if (typeof item === "string") {
-                    return item.match(/^"(.+)"\^\^(.+)$/);
+                    return item.match(/^"(.+)"@(.+)$/);
                   }
  else if (typeof item === "object" && item !== null) {
                     return item["@value"] !== undefined && item["@language"];
@@ -566,12 +566,12 @@ class LD {
                   // Determine the format to use based on existing content
                   // Prefer RDF literal format if any are present, otherwise use JSON-LD format
                   const hasRdfLiterals = rawTargetValue.some(item =>
-                    typeof item === "string" && item.match(/^"(.+)"\^\^(.+)$/)
+                    typeof item === "string" && item.match(/^"(.+)"@(.+)$/)
                   );
 
                   if (hasRdfLiterals) {
                     // Use RDF literal format for consistency
-                    _v = `"${value}"^^${this.opts.lang}`;
+                    _v = `"${value}"@${this.opts.lang}`;
                   }
  else {
                     // Use JSON-LD format for consistency
@@ -1378,7 +1378,7 @@ class LD {
               i18nString = val;
             }
             else {
-              i18nString = `"${obj["@value"]}"^^${obj["@language"]}`;
+              i18nString = `"${obj["@value"]}"@${obj["@language"]}`;
             }
           }
           else {
@@ -1399,8 +1399,8 @@ class LD {
       }
       // eslint-disable-next-line no-inner-declarations
       function sortFn(a,b) {
-        const aw = a.match(/\^\^..$/) ? 1 : 0;
-        const bw = b.match(/\^\^..$/) ? 1 : 0;
+        const aw = a.match(/@..$/) ? 1 : 0;
+        const bw = b.match(/@..$/) ? 1 : 0;
         return aw - bw;
       }
       const $ = resource;
@@ -1446,7 +1446,7 @@ class LD {
                 i18nStrings.push(val);
               }
               else {
-                i18nStrings.push(`"${val}"^^${lang}`);
+                i18nStrings.push(`"${val}"@${lang}`);
               }
             }
           }
@@ -1475,7 +1475,7 @@ class LD {
   /**
    * Process an array of values for enhanced i18n support with language prioritization.
    * Current language values appear first as plain strings, other language values
-   * appear as RDF i18n literals ("value"^^lang). Supports both input formats:
+   * appear as RDF i18n literals ("value"@lang). Supports both input formats:
    * RDF literals and JSON-LD @value/@language objects.
    *
    * @param {Array} values - Array of values that may include i18n content
@@ -1497,8 +1497,8 @@ class LD {
 
     for (const value of values) {
       if (typeof value === "string") {
-        // Check if it's an RDF i18n literal format: "value"^^lang
-        const rdfMatch = value.match(/^"(.+)"\^\^(.+)$/);
+        // Check if it's an RDF i18n literal format: "value"@lang
+        const rdfMatch = value.match(/^"(.+)"@(.+)$/);
         if (rdfMatch) {
           const [, literalValue, lang] = rdfMatch;
           if (lang === currentLang) {
@@ -1524,7 +1524,7 @@ class LD {
           }
  else {
             // Other language - convert to RDF literal format
-            otherLangValues.push(`"${value["@value"]}"^^${value["@language"]}`);
+            otherLangValues.push(`"${value["@value"]}"@${value["@language"]}`);
           }
         }
  else {
