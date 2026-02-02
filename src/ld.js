@@ -860,6 +860,7 @@ class LD {
    * @param {boolean} [opts.normalizeLists=true] {@link Ld.normalizeLists}
    * @param {boolean} [opts.normalizeJSON] UNIMPLEMENTED JUST YET {@link Ld.normalizeJSON}
    * @param {boolean} [opts.proxy] return {@link Ld~Proxy} instead of a plain object
+   * @param {function} [opts.errorsCb] returns errorMsg[]
    *
    * @return {Promise<Resource>}
    */
@@ -883,6 +884,10 @@ class LD {
       usingDefaultContext = true;
     }
 
+    const errors = [];
+    const errorsCb = (_errors) => {
+      errors.push(..._errors);
+    };
     const expandedTypeUri = this.expandQName(this.opts.typeUri,context);
     let isProxy = false;
     if (resource.__isProxy) {
@@ -919,14 +924,20 @@ class LD {
       _resources = await jsonld.flatten(_resources);
     }
 
-    _resources = this.compactKeys(_resources,context);
+    _resources = this.compactKeys(_resources, context, {
+      errorsCb
+    });
     if (opts.firstExpand) {
       _resources = await this.expand(_resources,context);
     }
 
     let compacted = await jsonld.compact(_resources,context);
 
-    const reKeyed = this.compactKeys(compacted,context, {recursive:true});
+    const reKeyed = this.compactKeys(compacted,context, {
+      recursive:true,
+      errorsCb
+    });
+
     // Ld.compactKeys always returns an array, but maybe not what is wanted.
     if (_.isArray(compacted)) {
       compacted = reKeyed;
@@ -1002,14 +1013,16 @@ class LD {
             if (compactKey !== k) {
               // found a better key
               if (this.opts.debug) {
-                console.log(`replacing unsafe key ${k} with ${compactKey}`);
+                console.log(`replacing unsafe key: ${k} with ${compactKey}`);
               }
+              errors.push(`replacing unsafe key: ${k} with ${compactKey}`);
               _compacted[compactKey] = _compacted[k];
             }
             else {
               if (this.opts.debug) {
-                console.log(`remove unsafe key ${k} no replacement found.`);
+                console.log(`removing unsafe key: ${k}`);
               }
+              errors.push(`removing unsafe key: ${k}`);
             }
             delete _compacted[k];
           }
@@ -1024,14 +1037,16 @@ class LD {
               if (compactKey !== k) {
                 // found a better key
                 if (this.opts.debug) {
-                  console.log(`replacing unsafe key ${k} with ${compactKey}`);
+                  console.log(`replacing unsafe context key: ${k} with ${compactKey}`);
                 }
+                errors.push(`replacing unsafe context key: ${k} with ${compactKey}`);
                 _compacted["@context"][compactKey] = _compacted["@context"][k];
               }
               else {
                 if (this.opts.debug) {
-                  console.log(`remove unsafe key ${k} from context no replacement found.`);
+                  console.log(`removing unsafe context key: ${k}`);
                 }
+                errors.push(`removing unsafe context key: ${k}`);
               }
               delete _compacted["@context"][k];
             }
@@ -1081,6 +1096,9 @@ class LD {
         compacted = this.proxy(compacted, undefined, usingDefaultContext ? undefined : context);
       }
     }
+    if (typeof opts.errorsCb === "function") {
+      opts.errorsCb(errors);
+    }
     return compacted;
   }
 
@@ -1093,12 +1111,14 @@ class LD {
    * @param {boolean} [opts.recursive] recursively compact nested objects
    * @param {boolean} [opts.cleanUnsafeKeys] clean unsafe keys
    * @param {Array} [opts.nsList] namespace list
+   * @param {function} [opts.errorsCb] return errorMsg[]
    * @return {Array}
    */
   compactKeys(resource, context, opts) {
     check(resource,Match.OneOf(Object,Array));
     check(context,Object);
     check(opts, Match.Optional(Object));
+    const errors = [];
     opts = opts || {};
     opts.cleanUnsafeKeys = opts.cleanUnsafeKeys !== false;
     const resources = _.isArray(resource) ? resource : [resource];
@@ -1133,7 +1153,8 @@ class LD {
       if (_.isArray(resource)) {
         compactedResource = this.compactKeys(resource, context, {
           recursive:true,
-          nsList: nsList
+          nsList: nsList,
+          errorsCb: opts.errorsCb
         });
       }
       else {
@@ -1152,18 +1173,30 @@ class LD {
               // try to fix it
               const compactKey = this.compactUri(resKey, context);
               if (compactKey !== resKey) {
+                const msg = `replacing unsafe key: ${resKey} with ${compactKey}`;
                 // found a better key
                 if (this.opts.debug) {
-                  console.log(`replacing unsafe key ${resKey} with ${compactKey}`);
+                  console.log(msg);
                 }
+                errors.push(msg);
                 resKey = compactKey;
               }
               else {
+                const msg = `removing unsafe key: ${resKey}`;
+                errors.push(msg);
                 if (this.opts.debug) {
-                  console.log(`remove unsafe key ${resKey} no replacement found.`);
+                  console.log(msg);
                 }
                 return;
               }
+            }
+            if (resKey.substring(0, 2) === "//") {
+              const msg = `removing comment key: ${resKey}`;
+              errors.push(msg);
+              if (this.opts.debug) {
+                console.log(msg);
+              }
+              return;
             }
           }
           compactedResource[resKey] = resource[k];
@@ -1186,7 +1219,8 @@ class LD {
               try {
                 const subCompact = this.compactKeys(compactedResource[resKey], context, {
                   recursive:true,
-                  nsList: nsList
+                  nsList: nsList,
+                  errorsCb: opts.errorsCb
                 });
                 if (isArray) {
                   compactedResource[resKey] = subCompact;
@@ -1196,15 +1230,19 @@ class LD {
                 }
               }
               catch (e) {
+                const msg = `Ld.compactKeys threw ${e.message} on key=${resKey} for ${JSON.stringify(compactedResource, null, 2)} ${e.stack}`
+                errors.push(msg);
                 // unconventional choice to eat this error.
                 if (this.opts.debug) {
-                  console.log(`Ld.compactKeys threw on key=${resKey} for ${JSON.stringify(compactedResource, null, 2)} ${e.stack}`);
+                  console.log(msg);
                 }
               }
             }
             else if (typeof compactedResource[resKey] === "object") {
+              const msg = `Ld.compactKeys skipped weird object on key=${resKey} for ${JSON.stringify(compactedResource, null, 2)}`;
+              errors.push(msg);
               if (this.opts.debug) {
-                console.log(`Ld.compactKeys skipped weird object on key=${resKey} for ${JSON.stringify(compactedResource, null, 2)}`);
+                console.log(msg);
               }
             }
           }
@@ -1212,6 +1250,9 @@ class LD {
       }
       return compactedResource;
     });
+    if (typeof opts.errorsCb === "function") {
+      opts.errorsCb(errors);
+    }
     return compactedResources;
   }
 
