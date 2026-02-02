@@ -465,7 +465,7 @@ class LD {
             // but if i18n is enabled, check for that first
             if (this.opts.i18n && this.opts.lang) {
               // look for an internationalized string
-              const re = new RegExp(`"(.*)"\\^\\^${this.opts.lang}$`);
+              const re = new RegExp(`"(.*)"@${this.opts.lang}$`);
               let i18nString;
               if (target[property].some((v) => {
                 if (typeof v === "string") {
