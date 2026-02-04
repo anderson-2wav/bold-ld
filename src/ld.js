@@ -579,7 +579,7 @@ class LD {
                   }
 
                   // Look for existing value in current language and replace it
-                  const currentLangPattern = new RegExp(`^"(.*)"\\^\\^${this.opts.lang}$`);
+                  const currentLangPattern = new RegExp(`^"(.*)"@${this.opts.lang}$`);
                   let replacedExisting = false;
 
                   for (let i = 0; i < targetValue.length; i++) {
