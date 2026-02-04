@@ -254,7 +254,7 @@ describe("LD~Proxy", function () {
 
   describe("Ld.proxy i18n setter behavior", function() {
     let ldIt;
-    
+
     beforeEach(function() {
       ldIt = new LD({
         i18n: true,
@@ -266,32 +266,32 @@ describe("LD~Proxy", function () {
       const resource = {
         "@id": "http://www.w3.org/ns/org#Organization",
         "rdfs:label": [
-          '"Organisation"^^fr',
-          '"Organization"^^en',
-          '"Organizzazione"^^it',
-          '"organización"^^es'
+          '"Organisation"@fr',
+          '"Organization"@en',
+          '"Organizzazione"@it',
+          '"organización"@es'
         ]
       };
 
       const proxy = ldIt.proxy(resource);
-      
+
       // Setting a new value in current language should replace existing
       proxy["rdfs:label"] = "Un'altra organizzazione";
-      
+
       // Check that the raw value has the new RDF literal format
       const rawLabels = proxy.__raw["rdfs:label"];
-      assert.include(rawLabels, '"Un\'altra organizzazione"^^it');
-      assert.notInclude(rawLabels, '"Organizzazione"^^it');
-      
+      assert.include(rawLabels, '"Un\'altra organizzazione"@it');
+      assert.notInclude(rawLabels, '"Organizzazione"@it');
+
       // Check that getter returns the plain string for current language
       assert.equal(proxy["rdfs:label"], "Un'altra organizzazione");
-      
+
       // Check that array access prioritizes current language
       const labelArray = proxy["rdfs:label[]"];
       assert.equal(labelArray[0], "Un'altra organizzazione");
-      assert.include(labelArray, '"Organisation"^^fr');
-      assert.include(labelArray, '"Organization"^^en');
-      assert.include(labelArray, '"organización"^^es');
+      assert.include(labelArray, '"Organisation"@fr');
+      assert.include(labelArray, '"Organization"@en');
+      assert.include(labelArray, '"organización"@es');
     });
 
     it("should set i18n value with JSON-LD format", function() {
@@ -313,87 +313,87 @@ describe("LD~Proxy", function () {
       };
 
       const proxy = ldIt.proxy(resource);
-      
+
       // Setting a new value in current language should replace existing
       proxy["rdfs:label"] = "Un'altra organizzazione";
-      
+
       // Check that the raw value has the new JSON-LD format
       const rawLabels = proxy.__raw["rdfs:label"];
-      const newItValue = rawLabels.find(item => 
-        typeof item === "object" && 
-        item["@language"] === "it" && 
+      const newItValue = rawLabels.find(item =>
+        typeof item === "object" &&
+        item["@language"] === "it" &&
         item["@value"] === "Un'altra organizzazione"
       );
       assert.isDefined(newItValue);
-      
+
       // Original Italian value should be gone
-      const oldItValue = rawLabels.find(item => 
-        typeof item === "object" && 
-        item["@language"] === "it" && 
+      const oldItValue = rawLabels.find(item =>
+        typeof item === "object" &&
+        item["@language"] === "it" &&
         item["@value"] === "Organizzazione"
       );
       assert.isUndefined(oldItValue);
-      
+
       // Check that getter returns the plain string for current language
       assert.equal(proxy["rdfs:label"], "Un'altra organizzazione");
-      
+
       // Check that array access converts to RDF literals except current language
       const labelArray = proxy["rdfs:label[]"];
       assert.equal(labelArray[0], "Un'altra organizzazione");
-      assert.include(labelArray, '"Organisation"^^fr');
-      assert.include(labelArray, '"Organization"^^en');
-      assert.include(labelArray, '"organización"^^es');
+      assert.include(labelArray, '"Organisation"@fr');
+      assert.include(labelArray, '"Organization"@en');
+      assert.include(labelArray, '"organización"@es');
     });
 
     it("should handle multiple sets on same property", function() {
       const resource = {
         "@id": "http://www.w3.org/ns/org#Organization",
         "rdfs:label": [
-          '"Organisation"^^fr',
-          '"Organization"^^en',
-          '"Organizzazione"^^it',
-          '"organización"^^es'
+          '"Organisation"@fr',
+          '"Organization"@en',
+          '"Organizzazione"@it',
+          '"organización"@es'
         ]
       };
 
       const proxy = ldIt.proxy(resource);
-      
+
       // First set
       proxy["rdfs:label"] = "Prima organizzazione";
       assert.equal(proxy["rdfs:label"], "Prima organizzazione");
-      
+
       // Second set should replace the first
       proxy["rdfs:label"] = "Seconda organizzazione";
       assert.equal(proxy["rdfs:label"], "Seconda organizzazione");
-      
+
       // Should only have one Italian value in raw
       const rawLabels = proxy.__raw["rdfs:label"];
-      const itValues = rawLabels.filter(item => 
-        typeof item === "string" && item.includes("^^it")
+      const itValues = rawLabels.filter(item =>
+        typeof item === "string" && item.includes("@it")
       );
       assert.equal(itValues.length, 1);
-      assert.equal(itValues[0], '"Seconda organizzazione"^^it');
+      assert.equal(itValues[0], '"Seconda organizzazione"@it');
     });
 
     it("should add new language when setting non-current language", function() {
       const resource = {
         "@id": "http://www.w3.org/ns/org#Organization",
         "rdfs:label": [
-          '"Organisation"^^fr',
-          '"Organization"^^en'
+          '"Organisation"@fr',
+          '"Organization"@en'
         ]
       };
 
       const proxy = ldIt.proxy(resource);
-      
+
       // Setting value should add Italian language
       proxy["rdfs:label"] = "Organizzazione italiana";
-      
+
       const rawLabels = proxy.__raw["rdfs:label"];
-      assert.include(rawLabels, '"Organizzazione italiana"^^it');
-      assert.include(rawLabels, '"Organisation"^^fr');
-      assert.include(rawLabels, '"Organization"^^en');
-      
+      assert.include(rawLabels, '"Organizzazione italiana"@it');
+      assert.include(rawLabels, '"Organisation"@fr');
+      assert.include(rawLabels, '"Organization"@en');
+
       assert.equal(proxy["rdfs:label"], "Organizzazione italiana");
     });
 
@@ -404,10 +404,10 @@ describe("LD~Proxy", function () {
       };
 
       const proxy = ldIt.proxy(resource);
-      
+
       // Setting on non-i18n array should work normally
       proxy["rdfs:seeAlso"] = "value3";
-      
+
       const rawSeeAlso = proxy.__raw["rdfs:seeAlso"];
       assert.deepEqual(rawSeeAlso, ["value3", "value1", "value2"]);
       assert.equal(proxy["rdfs:seeAlso"], "value3");
@@ -417,46 +417,46 @@ describe("LD~Proxy", function () {
       const resource = {
         "@id": "http://www.w3.org/ns/org#Organization",
         "rdfs:label": [
-          '"Organisation"^^fr',
+          '"Organisation"@fr',
           {
             "@language": "en",
             "@value": "Organization"
           },
-          '"Organizzazione"^^it'
+          '"Organizzazione"@it'
         ]
       };
 
       const proxy = ldIt.proxy(resource);
-      
+
       // Should detect mixed format and use RDF literal format for consistency
       proxy["rdfs:label"] = "Nuova organizzazione";
-      
+
       const rawLabels = proxy.__raw["rdfs:label"];
-      assert.include(rawLabels, '"Nuova organizzazione"^^it');
-      assert.notInclude(rawLabels, '"Organizzazione"^^it');
+      assert.include(rawLabels, '"Nuova organizzazione"@it');
+      assert.notInclude(rawLabels, '"Organizzazione"@it');
     });
 
     it("should preserve order with current language first", function() {
       const resource = {
-        "@id": "http://www.w3.org/ns/org#Organization", 
+        "@id": "http://www.w3.org/ns/org#Organization",
         "rdfs:label": [
-          '"Organisation"^^fr',
-          '"Organization"^^en',
-          '"organización"^^es'
+          '"Organisation"@fr',
+          '"Organization"@en',
+          '"organización"@es'
         ]
       };
 
       const proxy = ldIt.proxy(resource);
-      
+
       proxy["rdfs:label"] = "Organizzazione italiana";
-      
+
       // Check array access order
       const labelArray = proxy["rdfs:label[]"];
       assert.equal(labelArray[0], "Organizzazione italiana");
       // Other languages should follow
-      assert.include(labelArray.slice(1), '"Organisation"^^fr');
-      assert.include(labelArray.slice(1), '"Organization"^^en');
-      assert.include(labelArray.slice(1), '"organización"^^es');
+      assert.include(labelArray.slice(1), '"Organisation"@fr');
+      assert.include(labelArray.slice(1), '"Organization"@en');
+      assert.include(labelArray.slice(1), '"organización"@es');
     });
   });
 });
