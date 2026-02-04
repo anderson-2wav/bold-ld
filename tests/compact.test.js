@@ -268,7 +268,7 @@ describe("LD.compact", function () {
     assert.property(compacted, "name", "should have compacted name property");
     assert.isArray(compacted.name, "should have array of i18n values");
     assert.include(compacted.name, "English Name", "should include English value");
-    assert.include(compacted.name, "\"Spanish Name\"^^es", "should include Spanish value with language tag");
+    assert.include(compacted.name, "\"Spanish Name\"@es", "should include Spanish value with language tag");
   });
 
   it("should handle compact with normalizeLists", async function() {
@@ -337,8 +337,8 @@ describe("LD.compact", function () {
     assert.property(compacted, "label", "should have compacted label property");
     assert.isArray(compacted.label, "should flatten language map to array of i18n strings");
     assert.include(compacted.label, "The Queen", "should include English label as plain string");
-    assert.include(compacted.label, "\"Die Königin\"^^de", "should include first German label with language tag");
-    assert.include(compacted.label, "\"Ihre Majestät\"^^de", "should include second German label with language tag");
+    assert.include(compacted.label, "\"Die Königin\"@de", "should include first German label with language tag");
+    assert.include(compacted.label, "\"Ihre Majestät\"@de", "should include second German label with language tag");
     assert.lengthOf(compacted.label, 3, "should have three total label values");
   });
 
