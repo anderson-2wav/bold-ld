@@ -402,7 +402,9 @@ class LD {
         }
 
         // END HANDLING SPECIAL PROPERTIES
-
+// if (property === "rdfs:comment") {
+//   debugger;
+// }
         let asArray = false;
         if (property.substr(-2) === "[]") {
           property = property.substring(0,property.length-2);
@@ -433,7 +435,7 @@ class LD {
             if (this.opts.i18n && this.opts.lang) {
               const hasI18nContent = __raw.some(value => {
                 if (typeof value === "string") {
-                  return value.match(/^"(.+)"@(.+)$/);
+                  return value.match(/^"(.+)"@(.+)$/s);
                 }
                 else if (typeof value === "object" && value !== null) {
                   return value["@value"] !== undefined && value["@language"];
@@ -465,7 +467,7 @@ class LD {
             // but if i18n is enabled, check for that first
             if (this.opts.i18n && this.opts.lang) {
               // look for an internationalized string
-              const re = new RegExp(`"(.*)"@${this.opts.lang}$`);
+              const re = new RegExp(`"(.*)"@${this.opts.lang}$`, "s");
               let i18nString;
               if (target[property].some((v) => {
                 if (typeof v === "string") {
