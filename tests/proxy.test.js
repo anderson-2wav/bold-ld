@@ -514,7 +514,7 @@ const ORG_I18N = {
   "owl:hasKey": [{
     "@id": "org:identifier"
   }],
-  "https://ontology.2wav.com#stringProperty": {
+  "https://ontologize.2wav.com/ontology#stringProperty": {
     "@language": "es",
     "@value": "organización"
   }

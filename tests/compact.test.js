@@ -30,7 +30,7 @@ describe("LD.compact", function () {
     const expanded = await ld.expand(res);
     assert.ok(!ld.isProxy(expanded[0]), "Ld.expand never returns a proxy");
     // debugLogger(`expanded: ${JSON.stringify(expanded,null,2)}`);
-    assert.equal(_.get(expanded, "[0][\"https://ontology.2wav.com#width\"][0][\"@value\"]"),10);
+    assert.equal(_.get(expanded, "[0][\"https://ontologize.2wav.com/ontology#width\"][0][\"@value\"]"),10);
   });
 
   it("should compact a resource with context", async function() {
@@ -354,7 +354,7 @@ describe("LD.compact", function () {
  * @type {object}
  */
 const DEFAULT_CONTEXT = {
-  "@vocab" : "https://ontology.2wav.com#",
+  "@vocab" : "https://ontologize.2wav.com/ontology#",
   "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
   "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
   "owl" : "http://www.w3.org/2002/07/owl#",
@@ -365,10 +365,10 @@ const DEFAULT_CONTEXT = {
   "org" : "http://www.w3.org/ns/org#",
   "uo" : "http://purl.obolibrary.org/obo/uo.owl",
   "obo" : "http://purl.obolibrary.org/obo/",
-  "ctb" : "https://ontology.2wav.com/bridge#",
-  "ctl" : "https://ontology.2wav.com/800-53#",
-  "ctl5" : "https://ontology.2wav.com/800-53/rev5#",
-  "nice" : "https://ontology.2wav.com/nice#",
+  "ctb" : "https://ontologize.2wav.com/ontology/bridge#",
+  "ctl" : "https://ontologize.2wav.com/ontology/800-53#",
+  "ctl5" : "https://ontologize.2wav.com/ontology/800-53/rev5#",
+  "nice" : "https://ontologize.2wav.com/ontology/nice#",
   "acrt" : "https://privatealpha.com/ontology/certification/1#",
   "time" : "http://www.w3.org/2006/time#",
   "skos" : "http://www.w3.org/2004/02/skos/core#",
