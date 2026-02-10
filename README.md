@@ -16,7 +16,7 @@ This means:
 ## Overview
 
 One of LD's primary functions is to **compact** JSON-LD documents into normalized _resources_ suitable for persistence and practical javascript/typescript programming in BOLD. To that end:
-* **@id** is converted to **_id_** and used as MongoDB _id strings (BOLD does not use MongoDB's ObjectId type).
+* **@id** is converted to **\_id** and used as MongoDB _id strings (BOLD does not use MongoDB's ObjectId type).
 * **@type** is always a @set array, typically sorted from most to least specific, according to the application.
 * **rdf:type** is converted to @type in the compaction process.
 * JSON-LD properties and all RDF predicates are compacted to QNames and used as property keys in MongoDB documents. Since MongoDB document keys cannot contain ".", LD ensures that all keys are compacted and MongoDB compatible.
