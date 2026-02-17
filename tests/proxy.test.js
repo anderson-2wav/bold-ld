@@ -459,7 +459,70 @@ describe("LD~Proxy", function () {
       assert.include(labelArray.slice(1), '"organización"@es');
     });
   });
-});
+
+  /**
+   * Why:
+   * A scratchpad for a subtle problem with ld.opts.proxyFlatten.
+   * Notes to future self:
+   * get()ing a property which is an array value e.g. thingToFlatten.bars,
+   * value is replaced with a proxy to the flattened version of the value,
+   * and _that_ proxy has realTarget of the original value.
+   * complicated and messy.
+   * this means that the original __raw object has been mutated by the get.
+   * This unexpected side effect seems like an antipattern.
+   */
+  describe.skip("opts.proxyFlatten", function() {
+    const thingToFlatten = {
+      "@id": "a-thing-with-unflat-properties",
+      "@type": [
+        "TypeOne",
+        "TypeTwo",
+      ],
+      "bars": [
+        {
+          "@value": 1,
+        },
+        {
+          "@value": 2,
+        }
+      ]
+    };
+
+    let ld;
+
+    before(function() {
+      ld = new LD({
+        isArrayPropertyFn: function(property) {
+          if (property === "@type") {
+            return true;
+          }
+          if (property === "bars") {
+            return true;
+          }
+          return false;
+        }
+      });
+    });
+
+    it("proxy with flatten", function() {
+      const proxy = ld.proxy(thingToFlatten);
+      console.log(proxy);
+      console.log(proxy.bars);
+      console.log(Object.values(proxy));
+      console.log(proxy.__raw["bars"]);
+      console.log(ld.unproxy(proxy));
+      console.log(proxy);
+      proxy.bars.push(3);
+      console.log(proxy.bars);
+      console.log(ld.unproxy(proxy));
+      console.log(proxy.bars.__raw);
+
+    });
+
+  });
+  });
+
+
 
 // this resource has been modified from the original
 // to allow i18n test without compact
