@@ -402,9 +402,6 @@ class LD {
         }
 
         // END HANDLING SPECIAL PROPERTIES
-// if (property === "rdfs:comment") {
-//   debugger;
-// }
         let asArray = false;
         if (property.substr(-2) === "[]") {
           property = property.substring(0,property.length-2);
