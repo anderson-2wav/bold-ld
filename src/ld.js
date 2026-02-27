@@ -766,51 +766,58 @@ class LD {
     check(opts,Object);
     context = context ?? this.opts.context;
 
-    // Handle single resource or array of resources
-    let inputForExpansion;
-    if (Array.isArray(resource)) {
-      inputForExpansion = resource;
-    }
- else {
-      // Single resource - could be a @graph document or individual resource
-      inputForExpansion = resource;
-    }
+    // this fn may be the first jsonld contact with imported resources.
+    try {
+      // Handle single resource or array of resources
+      let inputForExpansion;
+      if (Array.isArray(resource)) {
+        inputForExpansion = resource;
+      }
+      else {
+        // Single resource - could be a @graph document or individual resource
+        inputForExpansion = resource;
+      }
 
-    let _input = _.cloneDeep(this.unproxy(inputForExpansion));
+      let _input = _.cloneDeep(this.unproxy(inputForExpansion));
 
-    // If it's an array, process each resource
-    if (Array.isArray(_input)) {
-      for (const _resource of _input) {
-        if (_resource._id && _resource["@id"]) {
-          // cant have both, it confuses jsonld
-          delete _resource["@id"];
+      // If it's an array, process each resource
+      if (Array.isArray(_input)) {
+        for (const _resource of _input) {
+          if (_resource._id && _resource["@id"]) {
+            // cant have both, it confuses jsonld
+            delete _resource["@id"];
+          }
+          if (_resource["@context"]) {
+            _.merge(context,_resource["@context"]);
+          }
+          _resource["@context"] = context;
         }
-        if (_resource["@context"]) {
-          _.merge(context,_resource["@context"]);
+      }
+      else {
+        // Single resource/document
+        if (_input._id && _input["@id"]) {
+          delete _input["@id"];
         }
-        _resource["@context"] = context;
+        if (_input["@context"]) {
+          _.merge(context, _input["@context"]);
+        }
+        _input["@context"] = context;
       }
-    }
- else {
-      // Single resource/document
-      if (_input._id && _input["@id"]) {
-        delete _input["@id"];
+
+      if (opts.flatten) {
+        _input = await jsonld.flatten(_input);
       }
-      if (_input["@context"]) {
-        _.merge(context, _input["@context"]);
-      }
-      _input["@context"] = context;
+
+      const expanded = await jsonld.expand(_input);
+
+      // jsonld.expand returns the correct format - an array of expanded resources
+      // No need to wrap or unwrap - just return what jsonld gives us
+      return expanded;
     }
-
-    if (opts.flatten) {
-      _input = await jsonld.flatten(_input);
+    catch (e) {
+      console.error(`ld.expand error on ${(resource["@id"] || resource._id)}`,e);
+      throw e;
     }
-
-    const expanded = await jsonld.expand(_input);
-
-    // jsonld.expand returns the correct format - an array of expanded resources
-    // No need to wrap or unwrap - just return what jsonld gives us
-    return expanded;
   }
 
   /**
