@@ -342,6 +342,508 @@ describe("LD.compact", function () {
     assert.lengthOf(compacted.label, 3, "should have three total label values");
   });
 
+  // This is a scratch pad to help figure out the weirdnesses with the JSON-LD "@type": "@json"
+  // it is inclusive
+  it("wats with @type @json", async function() {
+    const r1 = {
+      "@id": "bold:TrackingReport",
+      "@type": [
+        "owl:Class"
+      ],
+      "rdfs:label": [
+        "\"Tracking Report\"@en",
+        "\"Rapport de suivi\"@fr",
+        "\"Rapporto di tracciamento\"@it",
+        "\"Informe de seguimiento\"@es",
+        "\"Ortungsbericht\"@de"
+      ],
+      "rdfs:subClassOf": [
+        "dwc:Event"
+      ],
+      "rdfs:comment": [
+        "\"A single report from a tracking collar or other tracking technology.\"@en",
+        "\"Un rapport individuel provenant d'un collier de suivi ou d'une autre technologie de suivi.\"@fr",
+        "\"Un singolo rapporto da un collare di tracciamento o altra tecnologia di tracciamento.\"@it",
+        "\"Un informe individual de un collar de rastreo u otra tecnología de seguimiento.\"@es",
+        "\"Ein einzelner Bericht von einem Ortungshalsband oder einer anderen Ortungstechnologie.\"@de"
+      ],
+      "bui:schema": {
+        "groups": [
+          {
+            "label": "Individuals",
+            "property": "bold:animal"
+          },
+          {
+            "label": "Species",
+            "property": "bold:species"
+          }
+        ]
+      }
+    };
+    const c1 = {
+      "_id": "@id",
+      "@vocab": "https://ontologize.2wav.com/ontology#",
+      "acrt": "https://privatealpha.com/ontology/certification/1#",
+      "bars": {
+        "@container": "@set"
+      },
+      "bfo": "https://ontologize.2wav.com/ontology/bfo#",
+      "bold": "https://ontologize.2wav.com/ontology/bold#",
+      "brick": "https://brickschema.org/schema/Brick#",
+      "bui": "https://ontologize.2wav.com/ontology/bold-ui#",
+      "contact": "http://www.w3.org/2000/10/swap/pim/contact#",
+      "csvw": "http://www.w3.org/ns/csvw#",
+      "ctb": "https://ontologize.2wav.com/ontology/bridge#",
+      "ctl": "https://ontologize.2wav.com/ontology/800-53#",
+      "ctl5": "https://ontologize.2wav.com/ontology/800-53/rev5#",
+      "dc": "http://purl.org/dc/elements/1.1/",
+      "dcam": "http://purl.org/dc/dcam/",
+      "dcat": "http://www.w3.org/ns/dcat#",
+      "dcmitype": "http://purl.org/dc/dcmitype/",
+      "dcterms": "http://purl.org/dc/terms/",
+      "doap": "http://usefulinc.com/ns/doap#",
+      "dwc": "http://rs.tdwg.org/dwc/terms/",
+      "dwcbfo": "https://ontologize.2wav.com/ontology/bfodwc#",
+      "foaf": "http://xmlns.com/foaf/0.1/",
+      "foo": {
+        "@type": "http://www.w3.org/2001/XMLSchema#string"
+      },
+      "geo": "http://www.w3.org/2003/01/geo/wgs84_pos#",
+      "nice": "https://ontologize.2wav.com/ontology/nice#",
+      "obo": "http://purl.obolibrary.org/obo/",
+      "odrl": "http://www.w3.org/ns/odrl/2/",
+      "org": "http://www.w3.org/ns/org#",
+      "owl": "http://www.w3.org/2002/07/owl#",
+      "prof": "http://www.w3.org/ns/dx/prof/",
+      "prov": "http://www.w3.org/ns/prov#",
+      "qb": "http://purl.org/linked-data/cube#",
+      "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+      "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+      "schema": "https://schema.org/",
+      "sh": "http://www.w3.org/ns/shacl#",
+      "skos": "http://www.w3.org/2004/02/skos/core#",
+      "sosa": "http://www.w3.org/ns/sosa/",
+      "ssn": "http://www.w3.org/ns/ssn/",
+      "time": "http://www.w3.org/2006/time#",
+      "uo": "http://purl.obolibrary.org/obo/uo.owl",
+      "vann": "http://purl.org/vocab/vann/",
+      "void": "http://rdfs.org/ns/void#",
+      "vs": "http://www.w3.org/2003/06/sw-vocab-status/ns#",
+      "wordnet": "http://xmlns.com/wordnet/1.6/",
+      "wot": "http://xmlns.com/wot/0.1/",
+      "xsd": "http://www.w3.org/2001/XMLSchema#",
+      "bfo:bearer-of": {
+        "@type": "@id"
+      },
+      "bfo:concretizes": {
+        "@type": "@id"
+      },
+      "bfo:continuant-part-of": {
+        "@type": "@id"
+      },
+      "bfo:environs": {
+        "@type": "@id"
+      },
+      "bfo:exists-at": {
+        "@type": "@id"
+      },
+      "bfo:first-instant-of": {
+        "@type": "@id"
+      },
+      "bfo:generically-depends-on": {
+        "@type": "@id"
+      },
+      "bfo:has-continuant-part": {
+        "@type": "@id"
+      },
+      "bfo:has-first-instant": {
+        "@type": "@id"
+      },
+      "bfo:has-history": {
+        "@type": "@id"
+      },
+      "bfo:has-last-instant": {
+        "@type": "@id"
+      },
+      "bfo:has-material-basis": {
+        "@type": "@id"
+      },
+      "bfo:has-member-part": {
+        "@type": "@id"
+      },
+      "bfo:has-occurrent-part": {
+        "@type": "@id"
+      },
+      "bfo:has-participant": {
+        "@type": "@id"
+      },
+      "bfo:has-realization": {
+        "@type": "@id"
+      },
+      "bfo:has-temporal-part": {
+        "@type": "@id"
+      },
+      "bfo:history-of": {
+        "@type": "@id"
+      },
+      "bfo:inheres-in": {
+        "@type": "@id"
+      },
+      "bfo:is-carrier-of": {
+        "@type": "@id"
+      },
+      "bfo:is-concretized-by": {
+        "@type": "@id"
+      },
+      "bfo:last-instant-of": {
+        "@type": "@id"
+      },
+      "bfo:located-in": {
+        "@type": "@id"
+      },
+      "bfo:location-of": {
+        "@type": "@id"
+      },
+      "bfo:material-basis-of": {
+        "@type": "@id"
+      },
+      "bfo:member-part-of": {
+        "@type": "@id"
+      },
+      "bfo:occupies-spatial-region": {
+        "@type": "@id"
+      },
+      "bfo:occupies-spatiotemporal-region": {
+        "@type": "@id"
+      },
+      "bfo:occupies-temporal-region": {
+        "@type": "@id"
+      },
+      "bfo:occurrent-part-of": {
+        "@type": "@id"
+      },
+      "bfo:occurs-in": {
+        "@type": "@id"
+      },
+      "bfo:participates-in": {
+        "@type": "@id"
+      },
+      "bfo:preceded-by": {
+        "@type": "@id"
+      },
+      "bfo:precedes": {
+        "@type": "@id"
+      },
+      "bfo:realizes": {
+        "@type": "@id"
+      },
+      "bfo:spatially-projects-onto": {
+        "@type": "@id"
+      },
+      "bfo:specifically-depended-on-by": {
+        "@type": "@id"
+      },
+      "bfo:specifically-depends-on": {
+        "@type": "@id"
+      },
+      "bfo:temporal-part-of": {
+        "@type": "@id"
+      },
+      "bfo:temporally-projects-onto": {
+        "@type": "@id"
+      },
+      "bold:aJsonProperty": {
+        "@type": "@json"
+      },
+      "bold:axiom": {
+        "@type": "http://www.w3.org/2001/XMLSchema#string"
+      },
+      "bold:begin": {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+      },
+      "bold:boolean": {
+        "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+      },
+      "bold:collection": {
+        "@type": "http://www.w3.org/2001/XMLSchema#string"
+      },
+      "bold:container": {
+        "@type": "http://www.w3.org/2001/XMLSchema#string"
+      },
+      "bold:decimal": {
+        "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+      },
+      "bold:end": {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+      },
+      "bold:explanation": {
+        "@type": "http://www.w3.org/2001/XMLSchema#string"
+      },
+      "bold:inferredFrom": {
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "bold:integer": {
+        "@type": "http://www.w3.org/2001/XMLSchema#integer"
+      },
+      "bold:isJsonProperty": {
+        "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+      },
+      "bold:provenance": {
+        "@type": "http://www.w3.org/2001/XMLSchema#string"
+      },
+      "bold:subjectOfStatement": {
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "bold:when": {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+      },
+      "bui:schema": {
+        "@type": "@json"
+      },
+      "ctb:collection": {
+        "@type": "http://www.w3.org/2001/XMLSchema#string"
+      },
+      "ctb:completedDate": {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+      },
+      "ctb:confidence": {
+        "@type": "http://www.w3.org/2001/XMLSchema#string"
+      },
+      "ctb:dueDate": {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+      },
+      "ctb:hasBeginning": {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+      },
+      "ctb:hasCertification": {
+        "@type": "@id"
+      },
+      "ctb:hasEnd": {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+      },
+      "ctb:hasKnowledge": {
+        "@type": "@id"
+      },
+      "ctb:hasPosition": {
+        "@type": "@id"
+      },
+      "ctb:hasSkill": {
+        "@type": "@id"
+      },
+      "ctb:hasTask": {
+        "@type": "@id"
+      },
+      "ctb:importance": {
+        "@type": "http://www.w3.org/2001/XMLSchema#integer"
+      },
+      "ctb:jobTitle": {
+        "@type": "http://www.w3.org/2001/XMLSchema#string"
+      },
+      "ctb:projectStatus": {
+        "@type": "http://www.w3.org/2001/XMLSchema#string"
+      },
+      "ctb:severity": {
+        "@type": "http://www.w3.org/2001/XMLSchema#string"
+      },
+      "ctb:startDate": {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+      },
+      "ctb:when": {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+      },
+      "ctl:memberOf": {
+        "@type": "@id"
+      },
+      "ctl:related": {
+        "@type": "@id"
+      },
+      "dc:creator": {
+        "@type": "@id"
+      },
+      "dc:description": {
+        "@type": "http://www.w3.org/2001/XMLSchema#string"
+      },
+      "dc:relation": {
+        "@container": "@set"
+      },
+      "dc:source": {
+        "@type": "@id"
+      },
+      "dcterms:description": {
+        "@type": "http://www.w3.org/2001/XMLSchema#string"
+      },
+      "dcterms:isPartOf": {
+        "@type": "@id"
+      },
+      "dcterms:license": {
+        "@type": "@id"
+      },
+      "foaf:mbox": {
+        "@type": "http://www.w3.org/2001/XMLSchema#string"
+      },
+      "foaf:phone": {
+        "@type": "http://www.w3.org/2001/XMLSchema#string"
+      },
+      "nice:abbrev": {},
+      "nice:competencyType": {
+        "@type": "@id"
+      },
+      "nice:description": {},
+      "nice:inCategory": {
+        "@type": "@id"
+      },
+      "nice:inSpecialtyArea": {
+        "@type": "@id"
+      },
+      "nice:name": {},
+      "nice:requiresAbility": {
+        "@type": "@id"
+      },
+      "nice:requiresKnowledge": {
+        "@type": "@id"
+      },
+      "nice:requiresSkill": {
+        "@type": "@id"
+      },
+      "nice:requiresTask": {
+        "@type": "@id"
+      },
+      "nice:title": {},
+      "org:holds": {
+        "@type": "@id"
+      },
+      "org:memberDuring": {
+        "@type": "@id"
+      },
+      "org:memberOf": {
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "org:organization": {
+        "@type": "@id"
+      },
+      "org:role": {
+        "@type": "@id"
+      },
+      "owl:allValuesFrom": {
+        "@type": "@id"
+      },
+      "owl:cardinality": {
+        "@type": "http://www.w3.org/2001/XMLSchema#integer"
+      },
+      "owl:disjointWith": {
+        "@type": "@id"
+      },
+      "owl:equivalentProperty": {
+        "@type": "@id"
+      },
+      "owl:intersectionOf": {
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "owl:inverseOf": {
+        "@type": "@id"
+      },
+      "owl:maxCardinality": {
+        "@type": "http://www.w3.org/2001/XMLSchema#integer"
+      },
+      "owl:members": {
+        "@type": "@id"
+      },
+      "owl:onProperty": {
+        "@type": "@id"
+      },
+      "owl:sameAs": {
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "owl:unionOf": {
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "owl:versionInfo": {
+        "@container": "@set"
+      },
+      "owl:versionIRI": {
+        "@type": "@id"
+      },
+      "rdf:object": {
+        "@type": "@id"
+      },
+      "rdf:predicate": {
+        "@type": "@id"
+      },
+      "rdf:subject": {
+        "@type": "@id"
+      },
+      "rdf:type": {
+        "@type": "@id"
+      },
+      "rdfs:comment": {
+        "@type": "http://www.w3.org/2001/XMLSchema#string"
+      },
+      "rdfs:domain": {
+        "@type": "@id"
+      },
+      "rdfs:range": {
+        "@type": "@id"
+      },
+      "rdfs:subClassOf": {
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "rdfs:subPropertyOf": {
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "schema:eligibleRegion": {},
+      "time:hasBeginning": {
+        "@type": "@id"
+      },
+      "time:hasEnd": {
+        "@type": "@id"
+      },
+      "time:inXSDDateTime": {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+      },
+      "vs:term_status": {
+        "@type": "@id"
+      },
+      "wot:assurance": {
+        "@type": "@id"
+      },
+      "wot:src_assurance": {
+        "@type": "@id"
+      },
+      "bold:species": {
+        "@type": "@id"
+      }
+    };
+    const testContext = {
+      "@vocab": "http://example.com/vocab/",
+      "http://example.com/vocab/json": {
+        "@type": "@json"
+      }
+    };
+    const testResource = {
+      "@id": "queen",
+      "http://example.com/vocab/json": {
+        a: 1,
+        b: 2,
+      }
+    };
+    const expanded = await ld.expand(testResource, testContext);
+    console.log(expanded);
+    const compacted = await ld.compact(testResource, testContext, {
+      firstExpand: true,
+      showContext: true,
+      ensureArrayProps: true,
+      proxy: false
+    });
+    console.log(compacted);
+  });
 });
 
 /**
