@@ -28,7 +28,7 @@
   },
   "keywords": ["json-ld", "mongodb", "ontology", "bold", "semantic-web", "rdf"],
   "author": "Anderson Wiese <anderson@2wav.io>",
-  "license": "MIT",
+  "license": "LGPL-3.0-or-later",
   "devDependencies": {},
   "dependencies": {
     "lodash": "^4.17.21",

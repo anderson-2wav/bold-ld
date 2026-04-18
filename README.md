@@ -6,11 +6,11 @@ LD is based on [jsonld.js](https://github.com/digitalbazaar/jsonld.js).
 
 ## License
 
-LD is licensed under the **Mozilla Public License 2.0 (MPL-2.0)**.
+LD is licensed under the **GNU Lesser General Public License v3.0 or later (LGPL-3.0-or-later)**.
 
 This means:
-- If you modify Ontologize source files, share those changes
-- Your application code that uses Ontologize can remain proprietary
+- If you modify LD source files, share those changes under LGPL
+- Your application code that uses LD can remain proprietary
 - See [LICENSE](./LICENSE) for full terms
 
 ## Overview
