@@ -9,7 +9,7 @@ LD is based on [jsonld.js](https://github.com/digitalbazaar/jsonld.js).
 LD is licensed under the **GNU Lesser General Public License v3.0 or later (LGPL-3.0-or-later)**.
 
 This means:
-- If you modify LD source files, share those changes under LGPL
+- If you modify LD source files, share those changes under LGPL (PRs would be nice)
 - Your application code that uses LD can remain proprietary
 - See [LICENSE](./LICENSE) for full terms
 
