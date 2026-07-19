@@ -22,7 +22,7 @@ describe("LD.expand()", function () {
       this.timeout(30000); // Allow time for processing
 
       // Read the bold-bfo.jsonld file
-      const bfoPath = `${process.env.APP_DIR}/data/bootstrap/bold-bfo.jsonld`;
+      const bfoPath = `${process.env.APP_DIR}/bold-assets/bootstrap/bold-bfo.jsonld`;
 
       let bfoContent;
       try {
